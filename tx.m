@@ -24,23 +24,12 @@ txbits = [txbits;added]; % padding with random bits to form a vector of length a
 end
 
 
-if conf.modulation_order == 2
-    bits = 2 * (txbits - 0.5);
-    bits2 = reshape(bits, 2, []);
-    
-    real_p = ((bits2(1,:) > 0)-0.5)*sqrt(2);
-    imag_p = ((bits2(2,:) > 0)-0.5)*sqrt(2);
-    
-    symbol = real_p + 1i*imag_p;
-    symbol = symbol.';
-else
-    error('Please use QPSK modulation.');
-end
+tx_symbols = mapGray(txbits);
 
 %% Generate Preamble into BPSK
 
-length_preamble = conf.npreamble;
-[preamble] = preamble_generate(length_preamble);
+
+preamble = preambleGenerate(conf.npreamble);
 conf.preamble = -2*(preamble) + 1;
 preamble_upsample = upsample(conf.preamble, conf.os_factor);
 preamble_upsample_filtered = matched_filter(preamble_upsample, conf);
@@ -48,13 +37,13 @@ preamble_upsample_filtered = preamble_upsample_filtered(conf.filterlength+1:end-
 
 %% Prepare the training data
 conf.LengthCP = floor(conf.N*0.2); 
-TrainingData = preamble_generate(conf.N);
-TrainingData = -2*(TrainingData) + 1;
-Training_time = osifft(TrainingData,conf.os_factor);
+conf.TrainingData = -2*(randi([0 1],conf.N,1)) + 1;
+Training_time = osifft(conf.TrainingData,conf.os_factor);
 Training_Vector = [Training_time(end-conf.LengthCP+1:end);Training_time];
 
 %% Prepare the symbols in OFDM symbol format
-symbolMatrix = reshape(symbol,[conf.N,conf.OFDM_symbols]).';
+symbolMatrix = reshape(tx_symbols,[conf.N,conf.OFDM_symbols]).';
+
 TimeMatrix = zeros(conf.OFDM_symbols+ floor(conf.OFDM_symbols/conf.repeatTrainingFrequency), conf.f_s/conf.f_sym+conf.LengthCP);
 k = 1;
 for i=1:(conf.OFDM_symbols+ floor(conf.OFDM_symbols/conf.repeatTrainingFrequency))
@@ -93,17 +82,6 @@ if strcmp(conf.plotfigure,'true')
 
 end
 
-if strcmp(conf.audiosystem,'awgn')
-        %Prepare noise
-
-    SNRlin = 10^(conf.SNR/10);
-    theta_n = generate_phase_noise(length(txsignalTemp), conf.sigmaDeltaTheta);
-    
-    %Apply Phase and AWGN noise
-    rx_BaseBand = txsignalTemp.*exp(1j*theta_n);
-    txsignalTemp = rx_BaseBand + sqrt(1/(2*SNRlin)) * (randn(size(rx_BaseBand)) + 1i*randn(size(rx_BaseBand)));
-
-end
 
 %% Modulate
 txsignal = zeros(length(txsignalTemp),1);

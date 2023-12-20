@@ -8,7 +8,6 @@
 %       - ALSA audio tools, most Linux distrubtions
 %       - builtin WAV tools on Windows 
 %   - 'bypass' : no audio transmission, takes txsignal as received signal
-%   - 'awgn'   : Applies simultaed awgn and phase noise
 %
 %   2 type of data to be sent:
 %   - 'random' : random generated bitstream
@@ -157,10 +156,6 @@ for k=1:conf.nframes
         rxsignal     = double(rawrxsignal(1:end))/double(intmax('int16')) ;
         
     elseif strcmp(conf.audiosystem,'bypass')
-        rawrxsignal = rawtxsignal(:,1);
-        rxsignal    = rawrxsignal;
-
-    elseif strcmp(conf.audiosystem,'awgn')
         rawrxsignal = rawtxsignal(:,1);
         rxsignal    = rawrxsignal;
     end
