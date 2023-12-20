@@ -1,6 +1,5 @@
 function corrected_data = channel_estimation(RX_Time_Matrix, conf)
-    TrainingData = preamble_generate(conf.N);
-    TrainingData = -2 * TrainingData + 1;
+    TrainingData = conf.TrainingData;
 
     payload_data = zeros(conf.N * conf.OFDM_symbols, 1);
     k = 1; % OFDM symbol index
