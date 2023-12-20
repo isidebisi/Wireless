@@ -31,21 +31,18 @@ end
 
 rxbits = zeros(conf.nbits,1);
 
-%% Demodulate
+%% demodulate
+demodulated_signal = demodulate(rxsignal, conf);
 
-t = 1/conf.f_s:1/conf.f_s:(length(rxsignal))/conf.f_s;
-rx_BaseBand = rxsignal .* exp(-1j*2*pi*conf.f_c*t).';
-
-%%  OFDM lowpass filter
-rx_BaseBand = ofdmlowpass(rx_BaseBand,conf,floor((conf.N+1)/2)*conf.f_sym*1.1);% 500 is the chosen cutoff frequency
-
+%% low pass filter
+filtered_rx_signal = ofdmlowpass(demodulated_signal,conf,conf.enlarged_bandwidth);
 
 %% Frame synchronization
 
-[data_idx, theta] = frame_sync(rx_BaseBand,conf);
+[data_idx, theta] = frame_sync(filtered_rx_signal,conf);
 
 Len = ((conf.OFDM_symbols+ floor(conf.OFDM_symbols/conf.repeatTrainingFrequency))+1)*(conf.f_s/conf.f_sym+conf.LengthCP);
-RX_Time_Vector = rx_BaseBand(data_idx:data_idx+Len-1); %the length of our signal is the training and the data 
+RX_Time_Vector = filtered_rx_signal(data_idx:data_idx+Len-1); %the length of our signal is the training and the data 
 RX_Time_Matrix = reshape(RX_Time_Vector,conf.f_s/conf.f_sym+conf.LengthCP,(conf.OFDM_symbols+ floor(conf.OFDM_symbols/conf.repeatTrainingFrequency))+1);
 
 
@@ -133,26 +130,6 @@ rxbits = demapper(payload_data);
 
 
 end
-
-
-
-
-
-%method 2
-
-% Y = osfft(RX_Time_Matrix(conf.LengthCP+1:end,1),conf.os_factor);
-% 
-% TrainingData = preamble_generate(conf.N);
-% TrainingData = -2*(TrainingData) + 1;
-% T = diag(TrainingData);
-% 
-% F_Mat = dftmtx(conf.N);
-% L = conf.N/2;
-% F = F_Mat(:,1:L);
-
-% the channel estimate
-% h = inv((F')*(T')*T*F)*(F')*(T')*Y;
-% H = fft(h);
 
  
 

@@ -51,6 +51,7 @@ conf.rolloff_factor = 0.22;
 conf.os_factor = conf.f_s/(conf.f_sym*conf.N);
 conf.filterlength = 5*conf.os_factor;
 conf.figurecount = 1;
+conf.enlarged_bandwidth = floor((conf.N+1)/2)*conf.f_sym*1.1;
 
 
 if mod(conf.os_factor,1) ~= 0
