@@ -1,32 +1,18 @@
 % % % % %
 % Wireless Receivers: algorithms and architectures
-% Audio Transmission Framework by Maroun Wakim and Jan Clevorn
 %
-%   4 operating modes for audiosystem:
+%   3 operating modes for audiosystem:
 %   - 'matlab' : generic MATLAB audio routines (unreliable under Linux)
 %   - 'native' : OS native audio system
 %       - ALSA audio tools, most Linux distrubtions
 %       - builtin WAV tools on Windows 
 %   - 'bypass' : no audio transmission, takes txsignal as received signal
 %
-%   2 type of data to be sent:
-%   - 'random' : random generated bitstream
-%   - 'image'  : sends an image
-%
-%   3 type of channel estimation
-%   - 'block'  : uses block estimation
-%   - 'viterbi': uses viterbi-viterbi algorithm to estimate
-%   - 'none'   : no channel estimation
-%
-%   Plotfigure to view plots fot analysis:
-%   - 'true'   : view all plots
-%   - 'false'  : view no plots
 %
 % Configuration Values
 % % % % %
 
-conf.audiosystem = 'bypass';    
-conf.datatype = 'image';       
+conf.audiosystem = 'bypass';          
 conf.plotfigure = 'true';
 conf.estimationtype = 'viterbi';
 
@@ -63,27 +49,23 @@ res.rxnbits     = zeros(conf.nframes,1);
 
 for k=1:conf.nframes
 
-    if strcmp(conf.datatype,'random')
-        % Generate random data
-        conf.requiredBits = 2000;
-        conf.nbits   = conf.requiredBits + 2*conf.N - mod(conf.requiredBits,2*conf.N);    % number of bits 
-        txbits = randi([0 1],conf.requiredBits,1);
 
-    elseif strcmp(conf.datatype,'image')
-        % load and show image
-        YourImage = imread('girl.jpeg');
-        if strcmp(conf.plotfigure,'true')
-            figure(1)
-            hold on
-            imshow(YourImage); title('Transmitted Original Image');
-        end 
-        
-        orig_class = class(YourImage);
-        orig_size = size(YourImage);
-        txbits = reshape((dec2bin(typecast(YourImage(:), 'uint8'), 8) - '0').', 1, []).';
-        conf.requiredBits = length(txbits);
-        conf.nbits   = conf.requiredBits + 2*conf.N - mod(conf.requiredBits,2*conf.N);    % number of bits 
-    end
+    % load and show image
+    image = imread('resizeLudovic.png');
+    image = rgb2gray(image);
+    if strcmp(conf.plotfigure,'true')
+        figure(1)
+        hold on
+        imshow(image); title('Transmitted Original Image');
+    end 
+    
+
+    imageSize = size(image);
+
+    txbits = reshape((dec2bin(typecast(image(:), 'uint8'), 8) - '0').', 1, []).';
+    conf.requiredBits = length(txbits);
+    conf.nbits   = conf.requiredBits + 2*conf.N - mod(conf.requiredBits,2*conf.N);    % number of bits 
+
     
     conf.OFDM_symbols = conf.nbits/conf.modulation_order/conf.N;
     conf.nsyms      = ceil(conf.nbits/conf.modulation_order);
@@ -184,21 +166,20 @@ for k=1:conf.nframes
 end
 
 
-if strcmp(conf.datatype,'image')
-    reconstructed = reshape(typecast(uint8(bin2dec(char(reshape(rxbits, 8, [])+'0').')), orig_class), orig_size);
 
-    if strcmp(conf.plotfigure,'true')
-        figure(3);
-        imshow(reconstructed); title('Recieved Reconstructured Image')
+reconstructed = reshape(typecast(uint8(bin2dec(char(reshape(rxbits, 8, [])+'0').')), 'uint8'), imageSize);
 
-    end 
+if strcmp(conf.plotfigure,'true')
+    figure(3);
+    imshow(reconstructed); title('Recieved Reconstructured Image')
+
 end
 
 
 per = sum(res.biterrors > 0) / conf.nframes;
 ber = sum(res.biterrors) / sum(res.rxnbits);
 
-disp(['Estimation Type: ', num2str(conf.estimationtype)]);
+
 disp(['Packet Error Rate (PER): ', num2str(per)]);
 disp(['Bit Error Rate (BER): ', num2str(ber)]);
 
