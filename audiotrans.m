@@ -37,7 +37,7 @@ for k=1:conf.nframes
     conf.nbits   = conf.requiredBits + 2*conf.nbcarrier - mod(conf.requiredBits,2*conf.nbcarrier);    % number of bits 
 
     
-    conf.OFDM_symbols = conf.nbits/conf.nbcarrier/2;    %2 because every symbol holds 2 bits
+    conf.ofdm_symbols = conf.nbits/conf.nbcarrier/2;    %2 because every symbol holds 2 bits
     conf.nsyms      = ceil(conf.nbits/2);               %again
 
     % Transmit Function
@@ -142,7 +142,7 @@ for k=1:conf.nframes
     % % % % % % % % % % % %
     
     % Receive Function
-    [rxbits, rx_corrected, conf]       = rx(rxsignal,conf);
+    [rxbits, conf]       = rx(rxsignal,conf);
     rxbits = rxbits(1:end - (conf.nbits - conf.requiredBits),:);
     res.rxnbits(k)      = length(rxbits);  
     res.biterrors(k)    = sum(rxbits ~= txbits);
