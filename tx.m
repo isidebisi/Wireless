@@ -40,11 +40,11 @@ train_ifft = osifft(conf.train_seq,conf.os_factor);
 train_ifft = [train_ifft(end-conf.cp_len+1:end);train_ifft];
 
 %% Prepare the symbols in OFDM symbol format
-symbolMatrix = reshape(tx_symbols,[conf.nbcarrier,conf.OFDM_symbols]).';
+symbolMatrix = reshape(tx_symbols,[conf.nbcarrier,conf.ofdm_symbols]).';
 
-TimeMatrix = zeros(conf.OFDM_symbols+ floor(conf.OFDM_symbols/conf.f_train), conf.f_s/conf.f_sym+conf.cp_len);
+TimeMatrix = zeros(conf.ofdm_symbols+ floor(conf.ofdm_symbols/conf.f_train), conf.f_s/conf.f_sym+conf.cp_len);
 k = 1;
-for i=1:(conf.OFDM_symbols+ floor(conf.OFDM_symbols/conf.f_train))
+for i=1:(conf.ofdm_symbols+ floor(conf.ofdm_symbols/conf.f_train))
     if mod(i,conf.f_train+1) == 0
         TimeMatrix(i,:) =train_ifft;
     else
@@ -55,7 +55,7 @@ for i=1:(conf.OFDM_symbols+ floor(conf.OFDM_symbols/conf.f_train))
     end
 end
 
-tx_ifft = reshape(TimeMatrix.',(conf.OFDM_symbols+ floor(conf.OFDM_symbols/conf.f_train))*(conf.f_s/conf.f_sym+conf.cp_len),1);
+tx_ifft = reshape(TimeMatrix.',(conf.ofdm_symbols+ floor(conf.ofdm_symbols/conf.f_train))*(conf.f_s/conf.f_sym+conf.cp_len),1);
 
 
 %% normalizing the signals

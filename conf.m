@@ -22,8 +22,6 @@ conf.os_factor = conf.f_s/(conf.f_sym*conf.nbcarrier);
 conf.filterlength = 5*conf.os_factor;
 conf.figurecount = 1;
 conf.enlarged_bandwidth = floor((conf.nbcarrier+1)/2)*conf.f_sym*1.1;
-
-
 conf.cp_len = floor(conf.nbcarrier*0.2); 
 conf.train_seq = -2*(randi([0 1],conf.nbcarrier,1)) + 1;
 

@@ -31,11 +31,12 @@ for k=1:conf.nframes
     imageSize = size(image);
 
     txbits = reshape((dec2bin(typecast(image(:), 'uint8'), 8) - '0').', 1, []).';
+    
     conf.requiredBits = length(txbits);
     conf.nbits   = conf.requiredBits + 2*conf.nbcarrier - mod(conf.requiredBits,2*conf.nbcarrier);    % number of bits 
 
-    
-    conf.OFDM_symbols = conf.nbits/conf.modulation_order/conf.nbcarrier;
+
+    conf.ofdm_symbols = conf.nbits/conf.modulation_order/conf.nbcarrier;
     conf.nsyms      = ceil(conf.nbits/conf.modulation_order);
 
     % Transmit Function
