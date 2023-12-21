@@ -7,16 +7,22 @@ function corrected_data = channel_estimation(rx_data, conf)
 
         switch conf.estimation_type    
             case 'none'
+                % remove training sequence between symbols when there is
+                % one
                 if mod(k, conf.f_train + 1) == 1
                     continue;
                 else
+                    % training sequence removal and frequency domain
+                    % conversion of symbols
                     payload_data(symbol_index:symbol_index + conf.nbcarrier - 1) = osfft(rx_data(:,k), conf.os_factor);
                     symbol_index = symbol_index + conf.nbcarrier;
                 end
 
             case 'viterbi'
                 if mod(k, conf.f_train + 1) == 1
+                    % frequency domain conversion 
                     Y = osfft(rx_data(:,k), conf.os_factor);
+
                     H = Y ./ conf.train_seq;
                     vect = angle(Y ./ conf.train_seq);
                     prev_angle = angle(H);
@@ -30,6 +36,7 @@ function corrected_data = channel_estimation(rx_data, conf)
                        % difference between two  successive phase offset is
                        % a gaussian random variable
                        deltaTheta = 1 / 4 * angle(seg(j)^4) + pi / 2 * (-1:4) ;
+                       
                        [~, ind] = min(abs(deltaTheta - prev_angle(j)));
                        vect(j) = deltaTheta(ind);
                        vect(j) = mod(0.01 * vect(j) + 0.99 * prev_angle(j), 2 * pi);
