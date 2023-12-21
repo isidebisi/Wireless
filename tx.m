@@ -36,8 +36,8 @@ preamble_upsample_filtered = preamble_upsample_filtered(conf.filterlength+1:end-
 
 %% Prepare the training data
 
-Training_time = osifft(conf.train_seq,conf.os_factor);
-Training_Vector = [Training_time(end-conf.cp_len+1:end);Training_time];
+train_ifft = osifft(conf.train_seq,conf.os_factor);
+train_ifft = [train_ifft(end-conf.cp_len+1:end);train_ifft];
 
 %% Prepare the symbols in OFDM symbol format
 symbolMatrix = reshape(tx_symbols,[conf.nbcarrier,conf.OFDM_symbols]).';
@@ -46,7 +46,7 @@ TimeMatrix = zeros(conf.OFDM_symbols+ floor(conf.OFDM_symbols/conf.f_train), con
 k = 1;
 for i=1:(conf.OFDM_symbols+ floor(conf.OFDM_symbols/conf.f_train))
     if mod(i,conf.f_train+1) == 0
-        TimeMatrix(i,:) =Training_Vector;
+        TimeMatrix(i,:) =train_ifft;
     else
     TimeSignalTemp = osifft(symbolMatrix(k,:),conf.os_factor);
     TimeMatrix(i,1:conf.cp_len) = TimeSignalTemp(end-conf.cp_len+1:end);
@@ -55,15 +55,15 @@ for i=1:(conf.OFDM_symbols+ floor(conf.OFDM_symbols/conf.f_train))
     end
 end
 
-TimeVector = reshape(TimeMatrix.',(conf.OFDM_symbols+ floor(conf.OFDM_symbols/conf.f_train))*(conf.f_s/conf.f_sym+conf.cp_len),1);
+tx_ifft = reshape(TimeMatrix.',(conf.OFDM_symbols+ floor(conf.OFDM_symbols/conf.f_train))*(conf.f_s/conf.f_sym+conf.cp_len),1);
 
 
 %% normalizing the signals
-preamble_upsample_filtered = preamble_upsample_filtered/sqrt( mean(real(preamble_upsample_filtered).^2) + mean(imag(preamble_upsample_filtered).^2));
-Training_Vector = Training_Vector/sqrt( mean(real(Training_Vector).^2) + mean(imag(Training_Vector).^2));
-TimeVector = TimeVector/sqrt( mean(real(TimeVector).^2) + mean(imag(TimeVector).^2));
+preamble_norm = preamble_upsample_filtered/sqrt( mean(real(preamble_upsample_filtered).^2) + mean(imag(preamble_upsample_filtered).^2));
+train_ifft_norm = train_ifft/sqrt( mean(real(train_ifft).^2) + mean(imag(train_ifft).^2));
+tx_ifft_norm = tx_ifft/sqrt( mean(real(tx_ifft).^2) + mean(imag(tx_ifft).^2));
 
-txsignalTemp = [preamble_upsample_filtered;Training_Vector; TimeVector];
+txsignalTemp = [preamble_norm; train_ifft_norm; tx_ifft_norm];
 
 if strcmp(conf.plotfigure,'true')
     fftSignal = abs(fftshift(fft(txsignalTemp)));
