@@ -14,8 +14,6 @@ function [rxbits conf] = rx(rxsignal,conf,k)
 %   conf        : configuration structure
 %
 
-% dummy 
-
 if strcmp(conf.plotfigure,'true')
     fftSignal = abs(fftshift(fft(rxsignal)));
     N = length(fftSignal); 
@@ -29,8 +27,6 @@ if strcmp(conf.plotfigure,'true')
     %xlim([-10000 10000])
 end   
 
-rxbits = zeros(conf.nbits,1);
-
 %% demodulate
 demodulated_signal = demodulate(rxsignal, conf);
 
@@ -38,20 +34,23 @@ demodulated_signal = demodulate(rxsignal, conf);
 filtered_rx_signal = ofdmlowpass(demodulated_signal,conf,conf.enlarged_bandwidth);
 
 %% Frame synchronization
+% retrieve start of data index
+[data_index, theta] = frame_sync(filtered_rx_signal, conf);
 
-% start of frame detection 
-[data_idx, theta] = frame_sync(filtered_rx_signal,conf);
+% Remove preamble
+signal_length = ((conf.OFDM_symbols + floor(conf.OFDM_symbols / conf.f_train)) + 1) * (conf.f_s / conf.f_sym + conf.cp_len);
 
-% remove preamble
-Len = ((conf.OFDM_symbols+ floor(conf.OFDM_symbols/conf.f_train))+1)*(conf.f_s/conf.f_sym+conf.cp_len);
-RX_Time_Vector = filtered_rx_signal(data_idx:data_idx+Len-1); %the length of our signal is the training and the data 
-RX_Time_Matrix = reshape(RX_Time_Vector,conf.f_s/conf.f_sym+conf.cp_len,(conf.OFDM_symbols+ floor(conf.OFDM_symbols/conf.f_train))+1);
+% extract signal
+received_signal = filtered_rx_signal(data_index:data_index + signal_length - 1); 
 
 %% remove cyclic prefix
+% Reshape the received signal into a matrix
+time_matrix = reshape(received_signal, conf.f_s / conf.f_sym + conf.cp_len, (conf.OFDM_symbols + floor(conf.OFDM_symbols / conf.f_train)) + 1);
 
-rx_no_cp = RX_Time_Matrix(conf.cp_len + 1:end, :);
+% remove cp
+rx_no_cp = time_matrix(conf.cp_len + 1:end, :);
 
-%% channel estimation & phase correction
+%% channel estimation, phase correction & frequency domain conversion
 rx_corrected = channel_estimation(rx_no_cp, conf);
 
 %% demapper QPSK
