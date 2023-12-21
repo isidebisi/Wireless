@@ -45,7 +45,6 @@ Len = ((conf.OFDM_symbols+ floor(conf.OFDM_symbols/conf.repeatTrainingFrequency)
 RX_Time_Vector = filtered_rx_signal(data_idx:data_idx+Len-1); %the length of our signal is the training and the data 
 RX_Time_Matrix = reshape(RX_Time_Vector,conf.f_s/conf.f_sym+conf.LengthCP,(conf.OFDM_symbols+ floor(conf.OFDM_symbols/conf.repeatTrainingFrequency))+1);
 
-
 %% channel estimation & phase correction
 rx_corrected = channel_estimation(RX_Time_Matrix, conf);
 
