@@ -2,7 +2,7 @@ function conf= conf()
 
 conf.audiosystem = 'bypass';          
 conf.plotfigure = 'true';
-conf.estimationtype = 'viterbi';
+conf.estimation_type = 'viterbi';
 
 
 % OFDM
