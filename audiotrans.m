@@ -25,6 +25,7 @@ for k=1:conf.nframes
         figure(1)
         hold on
         imshow(image); title('Transmitted Original Image');
+        hold off
     end 
     
 
@@ -35,8 +36,8 @@ for k=1:conf.nframes
     conf.nbits   = conf.requiredBits + 2*conf.nbcarrier - mod(conf.requiredBits,2*conf.nbcarrier);    % number of bits 
 
     
-    conf.OFDM_symbols = conf.nbits/conf.modulation_order/conf.nbcarrier;
-    conf.nsyms      = ceil(conf.nbits/conf.modulation_order);
+    conf.OFDM_symbols = conf.nbits/conf.nbcarrier/2;    %2 because every symbol holds 2 bits
+    conf.nsyms      = ceil(conf.nbits/2);               %again
 
     % Transmit Function
     [txsignal conf] = tx(txbits,conf,k);
@@ -53,7 +54,7 @@ for k=1:conf.nframes
     % create vector for transmission
     rawtxsignal = [ zeros(conf.f_s,1) ; normtxsignal ;  zeros(conf.f_s,1) ]; % add padding before and after the signal
     rawtxsignal = [  rawtxsignal  zeros(size(rawtxsignal)) ]; % add second channel: no signal
-    txdur       = length(rawtxsignal)/conf.f_s; % calculate length of transmitted signal
+    txdur       = length(rawtxsignal)/conf.f_s % calculate length of transmitted signal
     
     if strcmp(conf.plotfigure,'true')
         figure(2);
@@ -124,7 +125,7 @@ for k=1:conf.nframes
     % % % % % % % % % % % %
     
     % Receive Function
-    [rxbits, conf]       = rx(rxsignal,conf);
+    [rxbits, rx_corrected, conf]       = rx(rxsignal,conf);
     rxbits = rxbits(1:end - (conf.nbits - conf.requiredBits),:);
     res.rxnbits(k)      = length(rxbits);  
     res.biterrors(k)    = sum(rxbits ~= txbits);

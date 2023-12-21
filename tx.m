@@ -16,7 +16,7 @@ function [txsignal conf] = tx(txbits,conf,k)
 %% Map txbits into Symbols using QPSK
 
 if conf.nbits ~= conf.requiredBits
-diff = conf.nbits - conf.requiredBits;
+diff = conf.nbits - conf.requiredBits
 added = randi([0 1],diff,1);
 txbits = [txbits;added]; % padding with random bits to form a vector of length a multiple of 512
 
@@ -42,8 +42,10 @@ train_ifft = [train_ifft(end-conf.cp_len+1:end);train_ifft];
 %% Prepare the symbols in OFDM symbol format
 symbolMatrix = reshape(tx_symbols,[conf.nbcarrier,conf.OFDM_symbols]).';
 
-TimeMatrix = zeros(conf.OFDM_symbols+ floor(conf.OFDM_symbols/conf.f_train), conf.f_s/conf.f_sym+conf.cp_len);
+TimeMatrix = zeros(conf.OFDM_symbols+ floor(conf.OFDM_symbols/conf.f_train), conf.f_s/conf.spacing+conf.cp_len);
 k = 1;
+
+% add Training symbols every so often for continuous frame estimation
 for i=1:(conf.OFDM_symbols+ floor(conf.OFDM_symbols/conf.f_train))
     if mod(i,conf.f_train+1) == 0
         TimeMatrix(i,:) =train_ifft;
@@ -55,7 +57,7 @@ for i=1:(conf.OFDM_symbols+ floor(conf.OFDM_symbols/conf.f_train))
     end
 end
 
-tx_ifft = reshape(TimeMatrix.',(conf.OFDM_symbols+ floor(conf.OFDM_symbols/conf.f_train))*(conf.f_s/conf.f_sym+conf.cp_len),1);
+tx_ifft = reshape(TimeMatrix.',(conf.OFDM_symbols+ floor(conf.OFDM_symbols/conf.f_train))*(conf.f_s/conf.spacing+conf.cp_len),1);
 
 
 %% normalizing the signals
@@ -75,8 +77,6 @@ if strcmp(conf.plotfigure,'true')
     title('Spectrum of transmitted signal before modulation');
     xlabel('frequency (Hz)');
     ylabel('Amplitude');
-    
-   
 
 end
 
