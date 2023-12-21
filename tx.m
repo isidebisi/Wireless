@@ -29,35 +29,33 @@ tx_symbols = mapGray(txbits);
 %% Generate Preamble into BPSK
 
 
-preamble = preambleGenerate(conf.npreamble);
-conf.preamble = -2*(preamble) + 1;
-preamble_upsample = upsample(conf.preamble, conf.os_factor);
+preamble = -2 * preambleGenerate(conf.npreamble)+1;
+preamble_upsample = upsample(preamble, conf.os_factor);
 preamble_upsample_filtered = matched_filter(preamble_upsample, conf);
 preamble_upsample_filtered = preamble_upsample_filtered(conf.filterlength+1:end-conf.filterlength);
 
 %% Prepare the training data
-conf.LengthCP = floor(conf.N*0.2); 
-conf.TrainingData = -2*(randi([0 1],conf.N,1)) + 1;
-Training_time = osifft(conf.TrainingData,conf.os_factor);
-Training_Vector = [Training_time(end-conf.LengthCP+1:end);Training_time];
+
+Training_time = osifft(conf.train_seq,conf.os_factor);
+Training_Vector = [Training_time(end-conf.cp_len+1:end);Training_time];
 
 %% Prepare the symbols in OFDM symbol format
-symbolMatrix = reshape(tx_symbols,[conf.N,conf.OFDM_symbols]).';
+symbolMatrix = reshape(tx_symbols,[conf.nbcarrier,conf.OFDM_symbols]).';
 
-TimeMatrix = zeros(conf.OFDM_symbols+ floor(conf.OFDM_symbols/conf.repeatTrainingFrequency), conf.f_s/conf.f_sym+conf.LengthCP);
+TimeMatrix = zeros(conf.OFDM_symbols+ floor(conf.OFDM_symbols/conf.f_train), conf.f_s/conf.f_sym+conf.cp_len);
 k = 1;
-for i=1:(conf.OFDM_symbols+ floor(conf.OFDM_symbols/conf.repeatTrainingFrequency))
-    if mod(i,conf.repeatTrainingFrequency+1) == 0
+for i=1:(conf.OFDM_symbols+ floor(conf.OFDM_symbols/conf.f_train))
+    if mod(i,conf.f_train+1) == 0
         TimeMatrix(i,:) =Training_Vector;
     else
     TimeSignalTemp = osifft(symbolMatrix(k,:),conf.os_factor);
-    TimeMatrix(i,1:conf.LengthCP) = TimeSignalTemp(end-conf.LengthCP+1:end);
-    TimeMatrix(i,conf.LengthCP+1:end) = TimeSignalTemp;
+    TimeMatrix(i,1:conf.cp_len) = TimeSignalTemp(end-conf.cp_len+1:end);
+    TimeMatrix(i,conf.cp_len+1:end) = TimeSignalTemp;
     k = k+1;
     end
 end
 
-TimeVector = reshape(TimeMatrix.',(conf.OFDM_symbols+ floor(conf.OFDM_symbols/conf.repeatTrainingFrequency))*(conf.f_s/conf.f_sym+conf.LengthCP),1);
+TimeVector = reshape(TimeMatrix.',(conf.OFDM_symbols+ floor(conf.OFDM_symbols/conf.f_train))*(conf.f_s/conf.f_sym+conf.cp_len),1);
 
 
 %% normalizing the signals
