@@ -21,11 +21,15 @@ function corrected_data = channel_estimation(rx_data, conf)
                     vect = angle(Y ./ conf.train_seq);
                     prev_angle = angle(H);
                 else
+                    % frequency domain conversion of symbol
                     payload_data(symbol_index:symbol_index + conf.nbcarrier - 1) = osfft(rx_data(:,k), conf.os_factor);
-                    Segment = payload_data(symbol_index:symbol_index + conf.nbcarrier - 1);
+                    seg = payload_data(symbol_index:symbol_index + conf.nbcarrier - 1);
+
                     for j = 1:conf.nbcarrier
-                       A = pi / 2 * (-1:4);
-                       deltaTheta = 1 / 4 * angle(Segment(j)^4) + A;
+                   
+                       % difference between two  successive phase offset is
+                       % a gaussian random variable
+                       deltaTheta = 1 / 4 * angle(seg(j)^4) + pi / 2 * (-1:4) ;
                        [~, ind] = min(abs(deltaTheta - prev_angle(j)));
                        vect(j) = deltaTheta(ind);
                        vect(j) = mod(0.01 * vect(j) + 0.99 * prev_angle(j), 2 * pi);
