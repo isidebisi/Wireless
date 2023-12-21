@@ -1,18 +1,11 @@
 % % % % %
 % Wireless Receivers: algorithms and architectures
+% Audio Transmission Project
+% Charlotte Heibig and Ismael Frei
 %
-%   3 operating modes for audiosystem:
-%   - 'matlab' : generic MATLAB audio routines (unreliable under Linux)
-%   - 'native' : OS native audio system
-%       - ALSA audio tools, most Linux distrubtions
-%       - builtin WAV tools on Windows 
-%   - 'bypass' : no audio transmission, takes txsignal as received signal
-%
-%
-% Configuration Values
-% % % % %
+clear, clc, close all
 
-conf.audiosystem = 'bypass';          
+conf.audiosystem = 'matlab';          
 conf.plotfigure = 'true';
 conf.estimationtype = 'viterbi';
 
@@ -21,7 +14,6 @@ conf.estimationtype = 'viterbi';
 
 % OFDM
 conf.SNR = 30;
-conf.sigmaDeltaTheta = 0.004;
 conf.f_s     = 48000;   % sampling rate  
 conf.N = 256;
 conf.f_sym   = 5/2;     % symbol rate (K/2 where K is a divisor of 3x5^3)
