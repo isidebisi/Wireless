@@ -118,6 +118,22 @@ for k=1:conf.nframes
 
     end 
 
+    % Plot RX signal after modulation
+
+    if strcmp(conf.plotfigure,'true')
+        fftSignal = abs(fftshift(fft(rxsignal)));
+        len = length(fftSignal); 
+        f = (-len/2:len/2-1) * (conf.f_s/len);
+    
+        figure(7);
+        plot(f,fftSignal);
+        title('Spectrum of tx signal after modulation');
+        xlabel('Frequency (Hz)');
+        ylabel('Amplitude');
+        grid on;
+    end   
+
+
     %
     % End
     % Audio Transmission   
