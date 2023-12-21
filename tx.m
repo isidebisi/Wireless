@@ -40,7 +40,7 @@ train_ifft = osifft(conf.train_seq,conf.os_factor);
 train_ifft = [train_ifft(end-conf.cp_len+1:end);train_ifft];
 
 %% Prepare the symbols in OFDM symbol format
-symbolMatrix = reshape(tx_symbols,[conf.nbcarrier,conf.OFDM_symbols]).';
+symbolMatrix = reshape(tx_symbols,[conf.nbcarrier,conf.ofdm_symbols]).';
 
 TimeMatrix = zeros(conf.OFDM_symbols+ floor(conf.OFDM_symbols/conf.f_train), conf.f_s/conf.spacing+conf.cp_len);
 k = 1;

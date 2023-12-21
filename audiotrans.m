@@ -32,6 +32,7 @@ for k=1:conf.nframes
     imageSize = size(image);
 
     txbits = reshape((dec2bin(typecast(image(:), 'uint8'), 8) - '0').', 1, []).';
+    
     conf.requiredBits = length(txbits);
     conf.nbits   = conf.requiredBits + 2*conf.nbcarrier - mod(conf.requiredBits,2*conf.nbcarrier);    % number of bits 
 
@@ -118,6 +119,22 @@ for k=1:conf.nframes
         title('Received Signal')
 
     end 
+
+    % Plot RX signal after modulation
+
+    if strcmp(conf.plotfigure,'true')
+        fftSignal = abs(fftshift(fft(rxsignal)));
+        len = length(fftSignal); 
+        f = (-len/2:len/2-1) * (conf.f_s/len);
+    
+        figure(7);
+        plot(f,fftSignal);
+        title('Spectrum of tx signal after modulation');
+        xlabel('Frequency (Hz)');
+        ylabel('Amplitude');
+        grid on;
+    end   
+
 
     %
     % End
