@@ -32,7 +32,7 @@ for i = L * frame_sync_length + 1 : length(rx_signal)
         samples_after_threshold = samples_after_threshold - 1;
         if (T > current_peak_value)
             beginning_of_data = i;
-            % TODO
+            
             
             phase_of_peak = mod(angle(c),2*pi);
             current_peak_value = T;

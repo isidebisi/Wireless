@@ -55,6 +55,18 @@ function corrected_data = channel_estimation(rx_data, conf)
         grid on
         xlabel('Re');
         ylabel('Im');
+        
+        figure(7);
+        plot(abs(H));
+        xlabel("subcarrier index");
+        ylabel("Magnitude of Impulse response");
+
+        figure(8);
+        plot(wrapTo2Pi(prev_angle));
+        ylim([0,2*pi]);
+        xlabel("subcarrier index");
+        ylabel("Phase");
+
     end
 
     corrected_data = payload_data;

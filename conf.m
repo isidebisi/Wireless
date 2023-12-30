@@ -22,8 +22,8 @@ conf.figurecount = 1;
 conf.enlarged_bandwidth = floor((conf.nbcarrier+1)/2)*conf.spacing*1.2;
 
 
-conf.cp_len = 30; 
-conf.train_seq = -2*(randi([0 1],conf.nbcarrier,1)) + 1;
+conf.cp_len = 1; 
+conf.train_seq = -2*(preambleGenerate(conf.nbcarrier)) + 1;
 
 end
 
