@@ -2,10 +2,17 @@
 % Wireless Receivers: algorithms and architectures
 % Audio Transmission Project
 % Charlotte Heibig and Ismael Frei
-%
-clear, clc, close all
 
-conf = conf();
+
+function [ber txsize] = audiotrans(nbcarrier, spacing, f_train, cp_len, conf)
+
+    
+
+ conf.nbcarrier = nbcarrier;
+ conf.spacing = spacing;
+ conf.f_train = f_train;
+ conf.cp_len = cp_len;
+
 
 if mod(conf.os_factor,1) ~= 0
    disp('WARNING: Sampling rate must be a multiple of the symbol rate'); 
@@ -55,6 +62,7 @@ for k=1:conf.nframes
     % create vector for transmission
     rawtxsignal = [ zeros(conf.f_s,1) ; normtxsignal ;  zeros(conf.f_s,1) ]; % add padding before and after the signal
     rawtxsignal = [  rawtxsignal  zeros(size(rawtxsignal)) ]; % add second channel: no signal
+    txsize = length(rawtxsignal);
     txdur       = length(rawtxsignal)/conf.f_s % calculate length of transmitted signal
     
     if strcmp(conf.plotfigure,'true')
@@ -168,4 +176,6 @@ ber = sum(res.biterrors) / sum(res.rxnbits);
 
 disp(['Packet Error Rate (PER): ', num2str(per)]);
 disp(['Bit Error Rate (BER): ', num2str(ber)]);
+
+end
 
